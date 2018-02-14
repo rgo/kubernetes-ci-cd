@@ -1,22 +1,26 @@
 #!/usr/bin/env bash
 
-echo "installing etcd operator"
-kubectl  create -f manifests/deployment.yaml
-kubectl  rollout status -f manifests/deployment.yaml
+echo "NOTE: Don't forget to set up RBAC[https://github.com/coreos/etcd-operator/blob/master/doc/user/install_guide.md]"
+read -p 'Press [Enter] key to continue...'
 
-until kubectl  get thirdpartyresource cluster.etcd.coreos.com
+echo "installing etcd operator"
+
+kubectl create -f https://raw.githubusercontent.com/coreos/etcd-operator/master/example/deployment.yaml
+kubectl rollout status -f https://raw.githubusercontent.com/coreos/etcd-operator/master/example/deployment.yaml
+
+until kubectl get customresourcedefinitions
 do
-    echo "waiting for operator"
-    sleep 2
+     echo "waiting for operator"
+     sleep 2
 done
 
 echo "pausing for 10 seconds for operator to settle"
 sleep 10
 
-kubectl  create -f manifests/example-etcd-cluster.yaml
+kubectl create -f https://raw.githubusercontent.com/coreos/etcd-operator/master/example/example-etcd-cluster.yaml
 
 echo "installing etcd cluster service"
-kubectl  create -f manifests/service.json
+kubectl create -f https://raw.githubusercontent.com/coreos/etcd-operator/master/example/example-etcd-cluster-nodeport-service.json
 
 echo "waiting for etcd cluster to turnup"
 
